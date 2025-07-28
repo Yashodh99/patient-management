@@ -3,6 +3,7 @@ package com.pm.patient_service.service;
 
 import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
+import com.pm.patient_service.exception.EmailAlreadyException;
 import com.pm.patient_service.mapper.PatientMapper;
 import com.pm.patient_service.repository.PatientRepository;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,14 @@ public class PatientService {
     }
 
 
-    public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO){
-        Patient newPatient = patientRepository.save(
-                PatientMapper.toModel(patientRequestDTO));
+    public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
+        if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
+            throw new EmailAlreadyException("A patient with this email" +"already exist" + patientRequestDTO.getEmail());
+        }
+            Patient newPatient = patientRepository.save(
+                    PatientMapper.toModel(patientRequestDTO));
 
-        return PatientMapper.toDTO(newPatient);
-    }
+            return PatientMapper.toDTO(newPatient);
+        }
+
 }
